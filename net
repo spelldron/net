@@ -1,0 +1,122 @@
+import random
+import math
+import pylab
+
+
+
+
+def GenRST(L, Req):
+    RST = []
+    Time = 0
+    i = 0
+    while i != Req:
+        Time -= math.log(random.random())/L
+        RST.append(Time)
+        i+=1
+    return RST
+
+
+def  Synk(M_RST):
+    time = 0
+    Send = 0
+    NotSend = M_RST[:]
+    Do = []
+    ALLNum = []
+    while Send!= len(M_RST):
+        if M_RST[Send] <= time:
+
+            Do.append(time + 1 - M_RST[Send])
+            NotSend.pop(0)
+            Num = 0
+            j = 0
+            while j != len(NotSend):
+                if NotSend[j] <= time:
+                    Num += 1
+                j += 1
+            ALLNum.append(Num)
+            time += 1
+            Send += 1
+        else:
+            time += 1
+            ALLNum.append(0)
+
+    i = 0
+    D = 0
+    while i != len(Do):
+        D+=Do[i]
+        i+=1
+    D = D / len(Do)
+    i = 0
+    Mn = 0
+    while i != len(ALLNum):
+        Mn += ALLNum[i]
+        i+=1
+    Mn = Mn / len(ALLNum)
+    return D, Mn
+
+def ASsynk(M_RST):
+    time  = M_RST[0]
+    Send = 0
+    Do = []
+    while Send != len(M_RST):
+        if M_RST[Send]<=time:
+            Do.append(time + 1 - M_RST[Send])
+            time += 1
+            Send += 1
+        else:
+            time += 0.001
+
+    i = 0
+    D = 0
+    while i != len(Do):
+        D += Do[i]
+        i += 1
+    D = D / len(Do)
+    return D
+
+
+
+
+
+LMBD = 0.1
+RST = int(input(" Введите количество запросов: "))
+
+
+All_RST = []
+i = 0
+Dn = 0
+Mn = 0
+ALLDsyn = []
+ALLDassyn = []
+ALLMn = []
+ALLMBD = []
+TheorD = []
+AsTheorD = []
+AllThMn = []
+while LMBD <= 0.99:
+    TDo = 0
+    All_RST = GenRST(LMBD, RST)
+    Dn, Mn = Synk(All_RST)
+    AsDn = ASsynk(All_RST)
+    print(Mn)
+    TDo= ((LMBD*(2 - LMBD))/ (2*(1 - LMBD)))/ LMBD + 0.5
+    TDoAs = TDo - 0.5
+    ThMn = ((LMBD*(2 - LMBD))/ (2*(1 - LMBD)))
+
+    AllThMn.append(ThMn)
+    ALLDassyn.append(AsDn)
+    AsTheorD.append(TDoAs)
+    TheorD.append(TDo)
+    ALLDsyn.append(Dn)
+    ALLMn.append(Mn)
+    ALLMBD.append(LMBD)
+    LMBD+=0.1
+
+pylab.plot(ALLMBD, ALLDassyn, "green")
+pylab.plot(ALLMBD, AsTheorD, "yellow")
+pylab.plot(ALLMBD, TheorD, "red" )
+pylab.plot(ALLMBD, ALLDsyn, "brown")
+pylab.show()
+pylab.plot(ALLMBD, ALLMn, "green")
+pylab.plot(ALLMBD, AllThMn, "blue")
+pylab.show()
